@@ -1,0 +1,10 @@
+<h1>Nouveau commentaire</h1>
+
+<p>
+    {{ comment.author.firstName }} {{ comment.author.lastName }} a commenté la tâche
+    <strong>{{ task.title }}</strong> (projet {{ task.project.name }}) :
+</p>
+
+<blockquote>{{ comment.body|nl2br }}</blockquote>
+
+<p>Connectez-vous à TaskFlow pour répondre.</p>

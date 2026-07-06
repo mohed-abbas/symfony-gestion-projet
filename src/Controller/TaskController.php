@@ -9,6 +9,7 @@ use App\Form\DocumentType;
 use App\Form\TaskCommentType;
 use App\Form\TaskType;
 use App\Form\TimeEntryType;
+use App\Message\TaskAssignedMessage;
 use App\Security\Voter\ProjectVoter;
 use App\Security\Voter\TaskVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -26,7 +28,7 @@ final class TaskController extends AbstractController
 
     #[Route('/projects/{id}/tasks/new', name: 'app_task_new', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     #[IsGranted(ProjectVoter::VIEW, subject: 'project')]
-    public function new(Request $request, Project $project, EntityManagerInterface $em): Response
+    public function new(Request $request, Project $project, EntityManagerInterface $em, MessageBusInterface $bus): Response
     {
         $type = $request->query->get('type', 'bug');
         if (!\in_array($type, self::VALID_TYPES, true)) {
@@ -50,6 +52,11 @@ final class TaskController extends AbstractController
             $task->setProject($project)->setAuthor($this->getUser());
             $em->persist($task);
             $em->flush();
+
+            // Notification asynchrone si la tâche est assignée dès la création.
+            if (null !== $task->getAssignee()) {
+                $bus->dispatch(new TaskAssignedMessage($task->getId(), $task->getAssignee()->getId()));
+            }
             $this->addFlash('success', 'Tâche créée.');
 
             return $this->redirectToRoute('app_task_show', ['id' => $task->getId()]);
@@ -75,8 +82,10 @@ final class TaskController extends AbstractController
 
     #[Route('/tasks/{id}/edit', name: 'app_task_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     #[IsGranted(TaskVoter::EDIT, subject: 'task')]
-    public function edit(Request $request, Task $task, EntityManagerInterface $em): Response
+    public function edit(Request $request, Task $task, EntityManagerInterface $em, MessageBusInterface $bus): Response
     {
+        $previousAssignee = $task->getAssignee(); // capturé avant liaison du formulaire
+
         $form = $this->createForm(TaskType::class, $task, [
             'project' => $task->getProject(),
             'default_type' => $task->getType(),
@@ -90,6 +99,12 @@ final class TaskController extends AbstractController
 
         if ($form->isSubmitted() && $form->get('save')->isClicked() && $form->isValid()) {
             $em->flush();
+
+            // Notifier seulement si l'assigné a changé vers un utilisateur non nul.
+            $assignee = $task->getAssignee();
+            if (null !== $assignee && $assignee !== $previousAssignee) {
+                $bus->dispatch(new TaskAssignedMessage($task->getId(), $assignee->getId()));
+            }
             $this->addFlash('success', 'Tâche mise à jour.');
 
             return $this->redirectToRoute('app_task_show', ['id' => $task->getId()]);

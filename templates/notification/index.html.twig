@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Notifications — TaskFlow{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1.2rem">
+        <h1 style="margin:0">Notifications</h1>
+        {% if notifications is not empty %}
+            <form method="post" action="{{ path('app_notification_read') }}" class="inline-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
+                <button type="submit" class="btn btn-secondary" style="margin:0">Tout marquer comme lu</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="card wide">
+        {% if notifications is empty %}
+            <p class="muted">Aucune notification pour l'instant.</p>
+        {% else %}
+            {% for notification in notifications %}
+                <div class="notif-item{{ notification.read ? '' : ' unread' }}">
+                    <span class="dot">{{ notification.read ? '○' : '●' }}</span>
+                    <div>
+                        <div>{{ notification.message }}</div>
+                        <div class="muted">{{ notification.createdAt|date('d/m/Y H:i') }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

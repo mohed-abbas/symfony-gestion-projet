@@ -1,0 +1,14 @@
+<h1>Une tâche vous a été assignée</h1>
+
+<p>Bonjour {{ assignee.firstName }},</p>
+
+<p>
+    La tâche <strong>{{ task.title }}</strong> (projet {{ task.project.name }})
+    vient de vous être assignée.
+</p>
+
+{% if task.dueDate %}
+    <p>Échéance : <strong>{{ task.dueDate|date('d/m/Y') }}</strong>.</p>
+{% endif %}
+
+<p>Connectez-vous à TaskFlow pour la consulter.</p>

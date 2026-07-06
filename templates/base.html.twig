@@ -65,6 +65,11 @@
                 .inline-form { display:inline; }
                 .progress { background:var(--line); border-radius:20px; height:14px; overflow:hidden; }
                 .progress-fill { background:var(--brand); height:100%; border-radius:20px; transition:width .3s; }
+                .notif-link { position:relative; text-decoration:none; }
+                .notif-badge { position:absolute; top:-8px; right:-10px; background:#ef4444; color:#fff; font-size:.68rem; font-weight:700; line-height:1; padding:.15rem .35rem; border-radius:10px; }
+                .notif-item { display:flex; gap:.6rem; padding:.7rem 0; border-bottom:1px solid var(--line); }
+                .notif-item.unread { font-weight:600; }
+                .notif-item .dot { color:var(--brand); }
             </style>
         {% endblock %}
 
@@ -78,6 +83,7 @@
             <nav>
                 {% if app.user %}
                     <a href="{{ path('app_project_index') }}">Projets</a>
+                    {{ render(controller('App\\Controller\\NotificationController::badge')) }}
                     <span class="muted">{{ app.user.userIdentifier }}</span>
                     <a href="{{ path('app_logout') }}">Déconnexion</a>
                 {% else %}

@@ -5,11 +5,13 @@ namespace App\Controller;
 use App\Entity\Task;
 use App\Entity\TaskComment;
 use App\Form\TaskCommentType;
+use App\Message\TaskCommentedMessage;
 use App\Security\Voter\TaskVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -18,7 +20,7 @@ final class TaskCommentController extends AbstractController
 {
     #[Route('/tasks/{id}/comments', name: 'app_comment_new', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[IsGranted(TaskVoter::VIEW, subject: 'task')]
-    public function new(Request $request, Task $task, EntityManagerInterface $em): Response
+    public function new(Request $request, Task $task, EntityManagerInterface $em, MessageBusInterface $bus): Response
     {
         $comment = (new TaskComment())->setTask($task)->setAuthor($this->getUser());
         $form = $this->createForm(TaskCommentType::class, $comment);
@@ -27,6 +29,7 @@ final class TaskCommentController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($comment);
             $em->flush();
+            $bus->dispatch(new TaskCommentedMessage($comment->getId()));
             $this->addFlash('success', 'Commentaire ajouté.');
         }
 

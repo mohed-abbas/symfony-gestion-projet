@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Notification;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +17,40 @@ class NotificationRepository extends ServiceEntityRepository
         parent::__construct($registry, Notification::class);
     }
 
-    //    /**
-    //     * @return Notification[] Returns an array of Notification objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('n')
-    //            ->andWhere('n.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('n.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * @return Notification[]
+     */
+    public function findForUser(User $user, int $limit = 30): array
+    {
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.user = :user')->setParameter('user', $user)
+            ->orderBy('n.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Notification
-    //    {
-    //        return $this->createQueryBuilder('n')
-    //            ->andWhere('n.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function countUnread(User $user): int
+    {
+        return (int) $this->createQueryBuilder('n')
+            ->select('COUNT(n.id)')
+            ->andWhere('n.user = :user')->setParameter('user', $user)
+            ->andWhere('n.isRead = false')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Marque toutes les notifications non lues d'un utilisateur comme lues.
+     */
+    public function markAllRead(User $user): void
+    {
+        $this->createQueryBuilder('n')
+            ->update()
+            ->set('n.isRead', 'true')
+            ->andWhere('n.user = :user')->setParameter('user', $user)
+            ->andWhere('n.isRead = false')
+            ->getQuery()
+            ->execute();
+    }
 }
