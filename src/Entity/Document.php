@@ -13,71 +13,45 @@ class Document
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $fileUrl = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $type = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $verificationStatus = null;
-
     #[ORM\ManyToOne(inversedBy: 'documents')]
     #[ORM\JoinColumn(nullable: false)]
+    private ?Task $task = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $owner = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $filename = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $mimeType = null;
+
+    // Size in bytes
+    #[ORM\Column(nullable: true)]
+    private ?int $size = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $uploadedAt = null;
+
+    public function __construct()
+    {
+        $this->uploadedAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getFileUrl(): ?string
+    public function getTask(): ?Task
     {
-        return $this->fileUrl;
+        return $this->task;
     }
 
-    public function setFileUrl(string $fileUrl): static
+    public function setTask(?Task $task): static
     {
-        $this->fileUrl = $fileUrl;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): static
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    public function getVerificationStatus(): ?string
-    {
-        return $this->verificationStatus;
-    }
-
-    public function setVerificationStatus(string $verificationStatus): static
-    {
-        $this->verificationStatus = $verificationStatus;
+        $this->task = $task;
 
         return $this;
     }
@@ -90,6 +64,54 @@ class Document
     public function setOwner(?User $owner): static
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    public function getFilename(): ?string
+    {
+        return $this->filename;
+    }
+
+    public function setFilename(string $filename): static
+    {
+        $this->filename = $filename;
+
+        return $this;
+    }
+
+    public function getMimeType(): ?string
+    {
+        return $this->mimeType;
+    }
+
+    public function setMimeType(?string $mimeType): static
+    {
+        $this->mimeType = $mimeType;
+
+        return $this;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    public function setSize(?int $size): static
+    {
+        $this->size = $size;
+
+        return $this;
+    }
+
+    public function getUploadedAt(): ?\DateTimeImmutable
+    {
+        return $this->uploadedAt;
+    }
+
+    public function setUploadedAt(\DateTimeImmutable $uploadedAt): static
+    {
+        $this->uploadedAt = $uploadedAt;
 
         return $this;
     }
