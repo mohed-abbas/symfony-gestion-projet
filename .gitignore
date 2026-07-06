@@ -26,3 +26,6 @@ _backup/
 sujet-tp-symfony.md
 
 .DS_Store
+
+# Browser automation artifacts
+.playwright-mcp/

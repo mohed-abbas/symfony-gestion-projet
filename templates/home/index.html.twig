@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord — TaskFlow{% endblock %}
+
+{% block body %}
+    <div class="card wide">
+        <h1>Bienvenue sur TaskFlow</h1>
+        <p class="muted">Connecté en tant que <strong>{{ app.user.fullName ?: app.user.userIdentifier }}</strong>.</p>
+        <ul class="roles">
+            {% for role in app.user.roles %}
+                <li>{{ role }}</li>
+            {% endfor %}
+        </ul>
+        <p class="muted">Les projets, sprints et le tableau Kanban arrivent en phase suivante.</p>
+    </div>
+{% endblock %}
