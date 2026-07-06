@@ -1,0 +1,29 @@
+{{ form_start(form) }}
+    {{ form_row(form.type) }}
+
+    <fieldset>
+        <legend>Champs spécifiques au type</legend>
+        {% if form.severity is defined %}{{ form_row(form.severity) }}{% endif %}
+        {% if form.stepsToReproduce is defined %}{{ form_row(form.stepsToReproduce) }}{% endif %}
+        {% if form.businessValue is defined %}{{ form_row(form.businessValue) }}{% endif %}
+        {% if form.storyPoints is defined %}{{ form_row(form.storyPoints) }}{% endif %}
+    </fieldset>
+
+    {{ form_row(form.title) }}
+    {{ form_row(form.description) }}
+    <div style="display:flex; gap:1rem">
+        <div style="flex:1">{{ form_row(form.priority) }}</div>
+        <div style="flex:1">{{ form_row(form.status) }}</div>
+    </div>
+    <div style="display:flex; gap:1rem">
+        <div style="flex:1">{{ form_row(form.assignee) }}</div>
+        <div style="flex:1">{{ form_row(form.sprint) }}</div>
+    </div>
+    {{ form_row(form.dueDate) }}
+    {{ form_row(form.labels) }}
+
+    <div class="form-actions">
+        {{ form_widget(form.save, {label: button_label|default('Enregistrer'), attr: {class: 'btn'}}) }}
+        <a class="btn btn-secondary" href="{{ cancel_path|default(path('app_project_board', {id: project.id})) }}">Annuler</a>
+    </div>
+{{ form_end(form) }}

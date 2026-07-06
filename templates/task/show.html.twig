@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ task.title }} — TaskFlow{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <p class="muted" style="margin-bottom:.6rem">
+        <a href="{{ path('app_project_show', {id: task.project.id}) }}">{{ task.project.name }}</a>
+        / <a href="{{ path('app_project_board', {id: task.project.id}) }}">Kanban</a>
+    </p>
+
+    <div class="row-between" style="margin-bottom:1rem">
+        <div>
+            <span class="badge badge-{{ task.type }}">{{ task.type }}</span>
+            <span class="badge badge-{{ task.priority }}">priorité {{ task.priority }}</span>
+            <h1 style="margin:.4rem 0 0">{{ task.title }}</h1>
+        </div>
+        <div class="form-actions">
+            {% if is_granted(constant('App\\Security\\Voter\\TaskVoter::EDIT'), task) %}
+                <a class="btn btn-secondary" href="{{ path('app_task_edit', {id: task.id}) }}">Modifier</a>
+            {% endif %}
+            {% if is_granted(constant('App\\Security\\Voter\\TaskVoter::DELETE'), task) %}
+                <form class="inline-form" method="post" action="{{ path('app_task_delete', {id: task.id}) }}"
+                      onsubmit="return confirm('Supprimer cette tâche ?')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_task_' ~ task.id) }}">
+                    <button class="btn btn-danger">Supprimer</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:2fr 1fr; gap:1rem; align-items:start">
+        <div class="stack">
+            <div class="card wide" style="margin:0">
+                {% if task.description %}<p>{{ task.description|nl2br }}</p>{% else %}<p class="muted">Aucune description.</p>{% endif %}
+
+                {% if task.type == 'bug' %}
+                    <fieldset><legend>Bug</legend>
+                        <p><strong>Sévérité :</strong> {{ task.severity ?? '—' }}</p>
+                        {% if task.stepsToReproduce %}<p><strong>Reproduction :</strong><br>{{ task.stepsToReproduce|nl2br }}</p>{% endif %}
+                    </fieldset>
+                {% elseif task.type == 'feature' %}
+                    <fieldset><legend>Fonctionnalité</legend>
+                        <p><strong>Valeur métier :</strong> {{ task.businessValue ?? '—' }}</p>
+                    </fieldset>
+                {% elseif task.type == 'story' %}
+                    <fieldset><legend>User story</legend>
+                        <p><strong>Story points :</strong> {{ task.storyPoints ?? '—' }}</p>
+                    </fieldset>
+                {% endif %}
+            </div>
+
+            <div class="card wide" style="margin:0">
+                <h1 style="font-size:1.1rem; margin:0 0 .5rem">Commentaires ({{ task.comments|length }})</h1>
+                {% for comment in task.comments %}
+                    <div class="comment">
+                        <div class="meta row-between">
+                            <span>{{ comment.author ? comment.author.fullName : 'Anonyme' }} · {{ comment.createdAt|date('d/m/Y H:i') }}</span>
+                            {% if comment.author and comment.author.id == app.user.id or is_granted(constant('App\\Security\\Voter\\TaskVoter::DELETE'), task) %}
+                                <form class="inline-form" method="post" action="{{ path('app_comment_delete', {id: comment.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ comment.id) }}">
+                                    <button class="btn btn-danger btn-sm">×</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        <div>{{ comment.body|nl2br }}</div>
+                    </div>
+                {% else %}
+                    <p class="muted">Aucun commentaire.</p>
+                {% endfor %}
+
+                {{ form_start(comment_form, {action: path('app_comment_new', {id: task.id})}) }}
+                    {{ form_row(comment_form.body) }}
+                    <button class="btn btn-sm">Commenter</button>
+                {{ form_end(comment_form) }}
+            </div>
+        </div>
+
+        <div class="stack">
+            <div class="card wide" style="margin:0">
+                <h1 style="font-size:1.05rem; margin:0 0 .5rem">Détails</h1>
+                <p class="field-row"><span class="muted">Statut :</span> {{ task.status }}</p>
+                <p class="field-row"><span class="muted">Assigné :</span> {{ task.assignee ? task.assignee.fullName : '—' }}</p>
+                <p class="field-row"><span class="muted">Auteur :</span> {{ task.author ? task.author.fullName : '—' }}</p>
+                <p class="field-row"><span class="muted">Sprint :</span> {{ task.sprint ? task.sprint.name : 'Backlog' }}</p>
+                <p class="field-row"><span class="muted">Échéance :</span> {{ task.dueDate ? task.dueDate|date('d/m/Y') : '—' }}</p>
+                {% if task.labels|length %}
+                    <p class="field-row"><span class="muted">Labels :</span>
+                        {% for label in task.labels %}<span class="chip" style="background:{{ label.color }}">{{ label.name }}</span> {% endfor %}
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="card wide" style="margin:0">
+                <h1 style="font-size:1.05rem; margin:0 0 .5rem">Temps passé</h1>
+                {% set total = 0 %}
+                {% for e in task.timeEntries %}{% set total = total + e.minutes %}{% endfor %}
+                <p class="muted">Total : {{ (total // 60) }}h{{ '%02d'|format(total % 60) }}</p>
+                {% for e in task.timeEntries %}
+                    <div class="field-row" style="font-size:.85rem">
+                        {{ e.spentOn|date('d/m/Y') }} — {{ e.minutes }} min
+                        {% if e.description %}<span class="muted">({{ e.description }})</span>{% endif %}
+                    </div>
+                {% endfor %}
+
+                {{ form_start(worklog_form, {action: path('app_worklog_new', {id: task.id})}) }}
+                    {{ form_row(worklog_form.minutes) }}
+                    {{ form_row(worklog_form.spentOn) }}
+                    {{ form_row(worklog_form.description) }}
+                    <button class="btn btn-sm">Ajouter</button>
+                {{ form_end(worklog_form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

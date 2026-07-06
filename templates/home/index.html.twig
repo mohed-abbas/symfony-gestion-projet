@@ -11,6 +11,8 @@
                 <li>{{ role }}</li>
             {% endfor %}
         </ul>
-        <p class="muted">Les projets, sprints et le tableau Kanban arrivent en phase suivante.</p>
+        <div class="form-actions">
+            <a class="btn" href="{{ path('app_project_index') }}">Mes projets</a>
+        </div>
     </div>
 {% endblock %}

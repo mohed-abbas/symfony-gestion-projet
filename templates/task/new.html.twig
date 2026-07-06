@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle tâche — {{ project.name }}{% endblock %}
+
+{% block body %}
+    <div class="card wide">
+        <h1>Nouvelle tâche — {{ project.name }}</h1>
+        <p class="muted">Choisissez le type : les champs spécifiques s'affichent automatiquement.</p>
+        <div data-controller="dynamic-form">
+            {% include 'task/_form.html.twig' with {
+                button_label: 'Créer la tâche',
+                cancel_path: path('app_project_board', {id: project.id}),
+            } %}
+        </div>
+    </div>
+{% endblock %}

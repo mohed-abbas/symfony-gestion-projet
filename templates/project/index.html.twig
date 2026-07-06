@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes projets — TaskFlow{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1.2rem">
+        <h1 style="margin:0">Mes projets</h1>
+        <a class="btn" href="{{ path('app_project_new') }}">+ Nouveau projet</a>
+    </div>
+
+    {% if projects is empty %}
+        <div class="card">
+            <p class="muted">Vous ne participez à aucun projet pour l'instant.</p>
+            <a class="btn" href="{{ path('app_project_new') }}">Créer mon premier projet</a>
+        </div>
+    {% else %}
+        <div class="grid">
+            {% for project in projects %}
+                <div class="card wide" style="margin:0">
+                    <div class="row-between">
+                        <span class="badge badge-muted">{{ project.projectKey }}</span>
+                        {% if project.archived %}<span class="badge badge-muted">Archivé</span>{% endif %}
+                    </div>
+                    <h1 style="font-size:1.15rem; margin:.5rem 0 .2rem">
+                        <a href="{{ path('app_project_show', {id: project.id}) }}" style="text-decoration:none">{{ project.name }}</a>
+                    </h1>
+                    <p class="muted" style="margin:.2rem 0">
+                        {{ project.organization ? project.organization.name : 'Sans organisation' }}
+                        · {{ project.tasks|length }} tâche(s)
+                    </p>
+                    <p class="muted" style="margin:.2rem 0">
+                        Chef : {{ project.lead ? project.lead.fullName : '—' }}
+                    </p>
+                    <div class="form-actions">
+                        <a class="btn btn-secondary btn-sm" href="{{ path('app_project_board', {id: project.id}) }}">Kanban</a>
+                        <a class="btn btn-secondary btn-sm" href="{{ path('app_project_backlog', {id: project.id}) }}">Backlog</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

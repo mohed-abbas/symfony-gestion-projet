@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
@@ -21,6 +22,7 @@ class Project
 
     #[ORM\ManyToOne(inversedBy: 'projects')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Choisissez une organisation.')]
     private ?Organization $organization = null;
 
     #[ORM\Column(length: 255)]
@@ -269,5 +271,54 @@ class Project
         }
 
         return $this;
+    }
+
+    // --- Business helpers (used by Voters, controllers and templates) ---
+
+    public function isArchived(): bool
+    {
+        return self::STATUS_ARCHIVED === $this->status;
+    }
+
+    /** The membership marked as LEAD, if any. */
+    public function getLeadMembership(): ?ProjectMembership
+    {
+        foreach ($this->memberships as $m) {
+            if (ProjectMembership::ROLE_LEAD === $m->getInternalRole()) {
+                return $m;
+            }
+        }
+
+        return null;
+    }
+
+    public function getLead(): ?User
+    {
+        return $this->getLeadMembership()?->getUser();
+    }
+
+    /** @return list<User> all users who are members of this project */
+    public function getMembers(): array
+    {
+        return array_values(array_filter(array_map(
+            static fn (ProjectMembership $m) => $m->getUser(),
+            $this->memberships->toArray(),
+        )));
+    }
+
+    public function hasMember(User $user): bool
+    {
+        foreach ($this->memberships as $m) {
+            if ($m->getUser()?->getId() === $user->getId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isLead(User $user): bool
+    {
+        return $this->getLead()?->getId() === $user->getId();
     }
 }

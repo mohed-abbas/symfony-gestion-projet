@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ project.name }} — TaskFlow{% endblock %}
+
+{% block body %}
+    <div class="card wide">
+        <h1>Modifier le projet</h1>
+        {% include 'project/_form.html.twig' with {
+            button_label: 'Enregistrer',
+            cancel_path: path('app_project_show', {id: project.id}),
+        } %}
+    </div>
+{% endblock %}

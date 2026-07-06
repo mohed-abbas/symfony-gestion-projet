@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau projet — TaskFlow{% endblock %}
+
+{% block body %}
+    <div class="card wide">
+        <h1>Nouveau projet</h1>
+        {% include 'project/_form.html.twig' with {
+            button_label: 'Créer le projet',
+            cancel_path: path('app_project_index'),
+        } %}
+    </div>
+{% endblock %}

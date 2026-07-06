@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ task.title }}{% endblock %}
+
+{% block body %}
+    <div class="card wide">
+        <h1>Modifier la tâche</h1>
+        <div data-controller="dynamic-form">
+            {% include 'task/_form.html.twig' with {
+                button_label: 'Enregistrer',
+                cancel_path: path('app_task_show', {id: task.id}),
+                project: task.project,
+            } %}
+        </div>
+    </div>
+{% endblock %}

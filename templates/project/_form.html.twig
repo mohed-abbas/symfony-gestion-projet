@@ -1,0 +1,15 @@
+{{ form_start(form) }}
+    {{ form_row(form.name) }}
+    {{ form_row(form.projectKey) }}
+    {{ form_row(form.description) }}
+    {{ form_row(form.organization) }}
+    <div style="display:flex; gap:1rem">
+        <div style="flex:1">{{ form_row(form.startDate) }}</div>
+        <div style="flex:1">{{ form_row(form.endDate) }}</div>
+    </div>
+    {{ form_row(form.status) }}
+    <div class="form-actions">
+        <button class="btn">{{ button_label|default('Enregistrer') }}</button>
+        <a class="btn btn-secondary" href="{{ cancel_path }}">Annuler</a>
+    </div>
+{{ form_end(form) }}

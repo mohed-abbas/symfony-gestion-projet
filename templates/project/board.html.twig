@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Kanban — {{ project.name }}{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1rem">
+        <div>
+            <h1 style="margin:0">{{ project.name }} — Kanban</h1>
+            <p class="muted" style="margin:.2rem 0">Glissez une carte d'une colonne à l'autre pour changer son statut.</p>
+        </div>
+        <div class="form-actions">
+            <a class="btn btn-secondary" href="{{ path('app_project_show', {id: project.id}) }}">Fiche projet</a>
+            <a class="btn btn-sm" href="{{ path('app_task_new', {id: project.id}) }}">+ Tâche</a>
+        </div>
+    </div>
+
+    <div class="board" data-controller="kanban">
+        {% for status, col in columns %}
+            <div class="col" data-status="{{ status }}"
+                 data-action="dragover->kanban#over dragleave->kanban#leave drop->kanban#drop">
+                <h3>{{ col.label }} ({{ col.tasks|length }})</h3>
+                <div data-kanban-body>
+                    {% for task in col.tasks %}
+                        <div class="kcard" draggable="true"
+                             data-task-id="{{ task.id }}"
+                             data-move-url="{{ path('app_task_move', {id: task.id}) }}"
+                             data-token="{{ csrf_token('move_task_' ~ task.id) }}"
+                             data-action="dragstart->kanban#start">
+                            <a href="{{ path('app_task_show', {id: task.id}) }}">{{ task.title }}</a>
+                            <div class="kmeta">
+                                <span class="badge badge-{{ task.type }}">{{ task.type }}</span>
+                                <span class="badge badge-{{ task.priority }}">{{ task.priority }}</span>
+                                {% if task.assignee %}<span class="muted" style="font-size:.75rem">{{ task.assignee.fullName }}</span>{% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }} — TaskFlow{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1rem">
+        <div>
+            <span class="badge badge-muted">{{ project.projectKey }}</span>
+            {% if project.archived %}<span class="badge badge-muted">Archivé</span>{% endif %}
+            <h1 style="margin:.4rem 0 0">{{ project.name }}</h1>
+            <p class="muted" style="margin:.2rem 0">
+                {{ project.organization ? project.organization.name : 'Sans organisation' }}
+            </p>
+        </div>
+        <div class="form-actions">
+            <a class="btn btn-secondary" href="{{ path('app_project_board', {id: project.id}) }}">Kanban</a>
+            <a class="btn btn-secondary" href="{{ path('app_project_backlog', {id: project.id}) }}">Backlog</a>
+            {% if is_granted(constant('App\\Security\\Voter\\ProjectVoter::EDIT'), project) %}
+                <a class="btn btn-secondary" href="{{ path('app_project_edit', {id: project.id}) }}">Modifier</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if project.description %}
+        <div class="card wide"><p style="margin:0">{{ project.description|nl2br }}</p></div>
+    {% endif %}
+
+    <div style="display:grid; grid-template-columns:2fr 1fr; gap:1rem; align-items:start">
+        <div class="card wide" style="margin:0">
+            <div class="row-between">
+                <h1 style="font-size:1.15rem; margin:0">Tâches ({{ project.tasks|length }})</h1>
+                <a class="btn btn-sm" href="{{ path('app_task_new', {id: project.id}) }}">+ Tâche</a>
+            </div>
+            {% if project.tasks is empty %}
+                <p class="muted">Aucune tâche.</p>
+            {% else %}
+                <table>
+                    <thead><tr><th>Titre</th><th>Type</th><th>Statut</th><th>Priorité</th><th>Assigné</th></tr></thead>
+                    <tbody>
+                        {% for task in project.tasks %}
+                            <tr>
+                                <td><a href="{{ path('app_task_show', {id: task.id}) }}">{{ task.title }}</a></td>
+                                <td><span class="badge badge-{{ task.type }}">{{ task.type }}</span></td>
+                                <td>{{ statuses[task.status] }}</td>
+                                <td><span class="badge badge-{{ task.priority }}">{{ task.priority }}</span></td>
+                                <td class="muted">{{ task.assignee ? task.assignee.fullName : '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+
+        <div class="stack">
+            <div class="card wide" style="margin:0">
+                <h1 style="font-size:1.05rem; margin:0 0 .5rem">Équipe</h1>
+                {% for m in project.memberships %}
+                    <div class="row-between" style="margin-bottom:.35rem">
+                        <span>{{ m.user.fullName }}</span>
+                        <span class="badge {{ m.internalRole == 'lead' ? 'badge-story' : 'badge-muted' }}">{{ m.internalRole }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="card wide" style="margin:0">
+                <div class="row-between">
+                    <h1 style="font-size:1.05rem; margin:0">Sprints</h1>
+                    {% if is_granted(constant('App\\Security\\Voter\\ProjectVoter::EDIT'), project) %}
+                        <a class="btn btn-secondary btn-sm" href="{{ path('app_sprint_new', {id: project.id}) }}">+ Sprint</a>
+                    {% endif %}
+                </div>
+                {% if project.sprints is empty %}
+                    <p class="muted" style="margin:.4rem 0 0">Aucun sprint.</p>
+                {% else %}
+                    {% for sprint in project.sprints %}
+                        <div style="margin-top:.4rem">{{ sprint.name }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            {% if is_granted(constant('App\\Security\\Voter\\ProjectVoter::DELETE'), project) %}
+                <form class="card wide" style="margin:0" method="post"
+                      action="{{ path('app_project_delete', {id: project.id}) }}"
+                      onsubmit="return confirm('Supprimer ce projet et tout son contenu ?')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_project_' ~ project.id) }}">
+                    <button class="btn btn-danger btn-sm">Supprimer le projet</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
