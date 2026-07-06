@@ -29,3 +29,6 @@ sujet-tp-symfony.md
 
 # Browser automation artifacts
 .playwright-mcp/
+
+# Uploaded attachments (stored outside public/)
+/var/uploads/

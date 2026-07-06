@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Entity\Task;
 use App\Entity\User;
+use App\Form\DocumentType;
 use App\Form\TaskCommentType;
 use App\Form\TaskType;
 use App\Form\TimeEntryType;
@@ -68,6 +69,7 @@ final class TaskController extends AbstractController
             'task' => $task,
             'comment_form' => $this->createForm(TaskCommentType::class)->createView(),
             'worklog_form' => $this->createForm(TimeEntryType::class)->createView(),
+            'document_form' => $this->createForm(DocumentType::class)->createView(),
         ]);
     }
 

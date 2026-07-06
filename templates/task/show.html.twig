@@ -110,6 +110,31 @@
                     <button class="btn btn-sm">Ajouter</button>
                 {{ form_end(worklog_form) }}
             </div>
+
+            <div class="card wide" style="margin:0">
+                <h1 style="font-size:1.05rem; margin:0 0 .5rem">Pièces jointes ({{ task.documents|length }})</h1>
+                {% for doc in task.documents %}
+                    <div class="row-between field-row" style="font-size:.85rem">
+                        <a href="{{ path('app_document_download', {id: doc.id}) }}">{{ doc.filename }}</a>
+                        <span class="row-between" style="gap:.4rem">
+                            <span class="muted">{{ doc.size ? (doc.size // 1024) ~ ' Ko' : '' }}</span>
+                            {% if doc.owner and doc.owner.id == app.user.id or is_granted(constant('App\\Security\\Voter\\TaskVoter::DELETE'), task) %}
+                                <form class="inline-form" method="post" action="{{ path('app_document_delete', {id: doc.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_document_' ~ doc.id) }}">
+                                    <button class="btn btn-danger btn-sm">×</button>
+                                </form>
+                            {% endif %}
+                        </span>
+                    </div>
+                {% else %}
+                    <p class="muted">Aucune pièce jointe.</p>
+                {% endfor %}
+
+                {{ form_start(document_form, {action: path('app_document_new', {id: task.id})}) }}
+                    {{ form_row(document_form.file) }}
+                    <button class="btn btn-sm">Téléverser</button>
+                {{ form_end(document_form) }}
+            </div>
         </div>
     </div>
 {% endblock %}
