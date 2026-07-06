@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques — {{ project.name }}{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1rem">
+        <div>
+            <h1 style="margin:0">{{ project.name }} — Statistiques</h1>
+            <p class="muted" style="margin:.2rem 0">Avancement, répartition et charge de l'équipe.</p>
+        </div>
+        <div class="form-actions">
+            <a class="btn btn-secondary" href="{{ path('app_project_show', {id: project.id}) }}">Fiche projet</a>
+            <a class="btn btn-secondary" href="{{ path('app_project_board', {id: project.id}) }}">Kanban</a>
+        </div>
+    </div>
+
+    {# Progress bars #}
+    <div class="card wide" style="margin:0 0 1rem">
+        <h1 style="font-size:1.05rem; margin:0 0 .8rem">Avancement</h1>
+        <p class="field-row" style="margin:0 0 .3rem"><span class="muted">Par tâches terminées :</span> <strong>{{ progress.byTasks }} %</strong></p>
+        <div class="progress"><div class="progress-fill" style="width:{{ progress.byTasks }}%"></div></div>
+
+        <p class="field-row" style="margin:.9rem 0 .3rem">
+            <span class="muted">Par story points livrés :</span>
+            <strong>{{ progress.byPoints }} %</strong>
+            <span class="muted">({{ progress.points.done }} / {{ progress.points.total }} pts)</span>
+        </p>
+        <div class="progress"><div class="progress-fill" style="width:{{ progress.byPoints }}%"></div></div>
+    </div>
+
+    {# Status counters #}
+    <div class="grid" style="grid-template-columns:repeat(4,1fr); gap:.8rem; margin-bottom:1rem">
+        {% for status, label in statusLabels %}
+            <div class="card" style="margin:0; text-align:center">
+                <div style="font-size:1.8rem; font-weight:700">{{ byStatus[status] ?? 0 }}</div>
+                <div class="muted">{{ label }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {# Charts #}
+    <div class="grid" style="grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem">
+        <div class="card" style="margin:0">
+            <h1 style="font-size:1.05rem; margin:0 0 .5rem">Répartition par statut</h1>
+            <div style="position:relative; height:260px">{{ render_chart(statusChart) }}</div>
+        </div>
+        <div class="card" style="margin:0">
+            <h1 style="font-size:1.05rem; margin:0 0 .5rem">Répartition par type</h1>
+            <div style="position:relative; height:260px">{{ render_chart(typeChart) }}</div>
+        </div>
+    </div>
+
+    <div class="card wide" style="margin:0 0 1rem">
+        <h1 style="font-size:1.05rem; margin:0 0 .5rem">Charge par membre (tâches ouvertes)</h1>
+        {% if hasWorkload %}
+            <div style="position:relative; height:300px">{{ render_chart(workloadChart) }}</div>
+        {% else %}
+            <p class="muted">Aucune tâche ouverte assignée.</p>
+        {% endif %}
+    </div>
+
+    {# Overdue tasks #}
+    <div class="card wide" style="margin:0">
+        <h1 style="font-size:1.05rem; margin:0 0 .5rem">Tâches en retard ({{ overdue|length }})</h1>
+        {% if overdue|length %}
+            <table class="table">
+                <thead><tr><th>Tâche</th><th>Statut</th><th>Assigné</th><th>Échéance</th></tr></thead>
+                <tbody>
+                    {% for task in overdue %}
+                        <tr>
+                            <td><a href="{{ path('app_task_show', {id: task.id}) }}">{{ task.title }}</a></td>
+                            <td>{{ statusLabels[task.status] ?? task.status }}</td>
+                            <td>{{ task.assignee ? task.assignee.fullName : '—' }}</td>
+                            <td class="badge badge-high">{{ task.dueDate|date('d/m/Y') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="muted">Aucune tâche en retard. 🎉</p>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -8,13 +8,17 @@ use App\Entity\Task;
 use App\Entity\User;
 use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
+use App\Repository\TaskRepository;
 use App\Security\Voter\ProjectVoter;
+use App\Service\ProjectProgressCalculator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 
 #[Route('/projects')]
 #[IsGranted('ROLE_USER')]
@@ -70,19 +74,85 @@ final class ProjectController extends AbstractController
 
     #[Route('/{id}/board', name: 'app_project_board', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted(ProjectVoter::VIEW, subject: 'project')]
-    public function board(Project $project): Response
+    public function board(Project $project, TaskRepository $tasks): Response
     {
         $columns = [];
         foreach ($this->statusLabels() as $status => $label) {
             $columns[$status] = ['label' => $label, 'tasks' => []];
         }
-        foreach ($project->getTasks() as $task) {
+        // Single query with assignee/sprint joined — no per-card N+1.
+        foreach ($tasks->findBoardForProject($project) as $task) {
             $columns[$task->getStatus()]['tasks'][] = $task;
         }
 
         return $this->render('project/board.html.twig', [
             'project' => $project,
             'columns' => $columns,
+        ]);
+    }
+
+    #[Route('/{id}/stats', name: 'app_project_stats', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted(ProjectVoter::VIEW, subject: 'project')]
+    public function stats(
+        Project $project,
+        TaskRepository $tasks,
+        ProjectProgressCalculator $progress,
+        ChartBuilderInterface $chartBuilder,
+    ): Response {
+        $statusLabels = $this->statusLabels();
+        $byStatus = $tasks->countByStatus($project);
+        $byType = $tasks->countByType($project);
+        $workload = $tasks->workloadByAssignee($project);
+
+        // Doughnut: tasks per status, in Kanban order.
+        $statusChart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT)
+            ->setData([
+                'labels' => array_values($statusLabels),
+                'datasets' => [[
+                    'data' => array_map(static fn (string $s): int => $byStatus[$s] ?? 0, array_keys($statusLabels)),
+                    'backgroundColor' => ['#9ca3af', '#3b82f6', '#f59e0b', '#22c55e'],
+                ]],
+            ])
+            ->setOptions(['maintainAspectRatio' => false, 'plugins' => ['legend' => ['position' => 'bottom']]]);
+
+        // Doughnut: tasks per STI type.
+        $typeLabels = ['bug' => 'Bug', 'feature' => 'Fonctionnalité', 'story' => 'User story'];
+        $typeChart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT)
+            ->setData([
+                'labels' => array_values($typeLabels),
+                'datasets' => [[
+                    'data' => array_map(static fn (string $t): int => $byType[$t] ?? 0, array_keys($typeLabels)),
+                    'backgroundColor' => ['#ef4444', '#6366f1', '#10b981'],
+                ]],
+            ])
+            ->setOptions(['maintainAspectRatio' => false, 'plugins' => ['legend' => ['position' => 'bottom']]]);
+
+        // Bar: open tasks per assignee.
+        $workloadChart = $chartBuilder->createChart(Chart::TYPE_BAR)
+            ->setData([
+                'labels' => array_column($workload, 'name'),
+                'datasets' => [[
+                    'label' => 'Tâches ouvertes',
+                    'data' => array_column($workload, 'total'),
+                    'backgroundColor' => '#6366f1',
+                ]],
+            ])
+            ->setOptions([
+                'maintainAspectRatio' => false,
+                'plugins' => ['legend' => ['display' => false]],
+                'scales' => ['y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0]]],
+            ]);
+
+        return $this->render('project/stats.html.twig', [
+            'project' => $project,
+            'progress' => $progress->forProject($project),
+            'statusLabels' => $statusLabels,
+            'byStatus' => $byStatus,
+            'overdue' => $tasks->findOverdue($project),
+            'statusChart' => $statusChart,
+            'typeChart' => $typeChart,
+            'workloadChart' => $workloadChart,
+            'hasWorkload' => $workload !== [],
         ]);
     }
 

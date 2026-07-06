@@ -16,6 +16,7 @@
         <div class="form-actions">
             <a class="btn btn-secondary" href="{{ path('app_project_board', {id: project.id}) }}">Kanban</a>
             <a class="btn btn-secondary" href="{{ path('app_project_backlog', {id: project.id}) }}">Backlog</a>
+            <a class="btn btn-secondary" href="{{ path('app_project_stats', {id: project.id}) }}">Statistiques</a>
             {% if is_granted(constant('App\\Security\\Voter\\ProjectVoter::EDIT'), project) %}
                 <a class="btn btn-secondary" href="{{ path('app_project_edit', {id: project.id}) }}">Modifier</a>
             {% endif %}
