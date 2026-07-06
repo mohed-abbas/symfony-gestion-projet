@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity]
 class BugTask extends Task
@@ -18,11 +19,13 @@ class BugTask extends Task
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $stepsToReproduce = null;
 
+    #[Groups(['task:list', 'task:read'])]
     public function getType(): string
     {
         return 'bug';
     }
 
+    #[Groups(['task:read', 'task:write'])]
     public function getSeverity(): ?string
     {
         return $this->severity;
@@ -35,6 +38,7 @@ class BugTask extends Task
         return $this;
     }
 
+    #[Groups(['task:read', 'task:write'])]
     public function getStepsToReproduce(): ?string
     {
         return $this->stepsToReproduce;

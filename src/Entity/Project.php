@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
@@ -72,6 +73,7 @@ class Project
         $this->activityLogs = new ArrayCollection();
     }
 
+    #[Groups(['task:read'])]
     public function getId(): ?int
     {
         return $this->id;
@@ -89,6 +91,7 @@ class Project
         return $this;
     }
 
+    #[Groups(['task:read'])]
     public function getName(): ?string
     {
         return $this->name;
@@ -101,6 +104,7 @@ class Project
         return $this;
     }
 
+    #[Groups(['task:read'])]
     public function getProjectKey(): ?string
     {
         return $this->projectKey;

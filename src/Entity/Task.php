@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 // Single Table Inheritance root: one `task` table, discriminated by `type`.
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
@@ -34,15 +36,19 @@ abstract class Task
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\Choice(choices: [self::STATUS_TODO, self::STATUS_IN_PROGRESS, self::STATUS_IN_REVIEW, self::STATUS_DONE])]
     private string $status = self::STATUS_TODO;
 
     #[ORM\Column(length: 20)]
+    #[Assert\Choice(choices: [self::PRIORITY_LOW, self::PRIORITY_MEDIUM, self::PRIORITY_HIGH])]
     private string $priority = self::PRIORITY_MEDIUM;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
@@ -108,11 +114,13 @@ abstract class Task
     // Discriminator value, e.g. "bug" / "feature" / "story"
     abstract public function getType(): string;
 
+    #[Groups(['task:list', 'task:read'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    #[Groups(['task:list', 'task:read', 'task:write'])]
     public function getTitle(): ?string
     {
         return $this->title;
@@ -125,6 +133,7 @@ abstract class Task
         return $this;
     }
 
+    #[Groups(['task:read', 'task:write'])]
     public function getDescription(): ?string
     {
         return $this->description;
@@ -137,6 +146,7 @@ abstract class Task
         return $this;
     }
 
+    #[Groups(['task:list', 'task:read', 'task:write'])]
     public function getStatus(): string
     {
         return $this->status;
@@ -149,6 +159,7 @@ abstract class Task
         return $this;
     }
 
+    #[Groups(['task:list', 'task:read', 'task:write'])]
     public function getPriority(): string
     {
         return $this->priority;
@@ -161,6 +172,7 @@ abstract class Task
         return $this;
     }
 
+    #[Groups(['task:read', 'task:write'])]
     public function getDueDate(): ?\DateTimeImmutable
     {
         return $this->dueDate;
@@ -173,6 +185,7 @@ abstract class Task
         return $this;
     }
 
+    #[Groups(['task:read'])]
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
@@ -185,6 +198,7 @@ abstract class Task
         return $this;
     }
 
+    #[Groups(['task:read'])]
     public function getProject(): ?Project
     {
         return $this->project;
@@ -197,6 +211,7 @@ abstract class Task
         return $this;
     }
 
+    #[Groups(['task:read'])]
     public function getSprint(): ?Sprint
     {
         return $this->sprint;
@@ -209,6 +224,7 @@ abstract class Task
         return $this;
     }
 
+    #[Groups(['task:read'])]
     public function getAuthor(): ?User
     {
         return $this->author;
@@ -221,6 +237,7 @@ abstract class Task
         return $this;
     }
 
+    #[Groups(['task:list', 'task:read'])]
     public function getAssignee(): ?User
     {
         return $this->assignee;
