@@ -49,6 +49,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    # Le worker s'arrête tout seul toutes les heures (--time-limit, recyclage mémoire) :
+    # restart pour qu'il reparte aussitôt, sinon la file async n'est plus consommée.
+    restart: unless-stopped
     volumes:
       - .:/var/www/html:rw
       - vendor:/var/www/html/vendor
