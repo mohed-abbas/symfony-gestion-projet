@@ -25,8 +25,8 @@
             'Tâches': stats.tasksTotal,
         } %}
         {% for label, value in cards %}
-            <div class="card" style="margin:0; text-align:center">
-                <div style="font-size:1.8rem; font-weight:700">{{ value }}</div>
+            <div class="card" style="margin:0">
+                <div class="stat-value">{{ value }}</div>
                 <div class="muted">{{ label }}</div>
             </div>
         {% endfor %}
