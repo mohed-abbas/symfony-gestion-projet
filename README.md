@@ -47,9 +47,25 @@ make cache     # vider le cache Symfony
 make migrate   # jouer les migrations Doctrine
 make fixtures  # (re)charger les données de test
 make assets    # (re)télécharger les assets front (importmap:install)
+make test      # prépare la base app_test et lance PHPUnit
 make logs      # suivre les logs du conteneur PHP
 make help      # aide
 ```
+
+## Tests
+
+```bash
+make test
+```
+
+Crée si besoin la base **`app_test`** (isolée de la base dev `app`), joue les migrations,
+puis lance PHPUnit. L'isolation repose sur `dama/doctrine-test-bundle` : chaque test tourne
+dans une transaction annulée à la fin (base toujours propre). Couverture actuelle :
+
+- **Unitaire** — `ProjectProgressCalculator` (calcul d'avancement) et
+  `AiTaskGenerator::parseSuggestions` (normalisation du JSON IA), sans base ni réseau.
+- **Fonctionnel** (`WebTestCase`) — inscription → connexion → création de tâche ; API JSON
+  (`/api/v1/projects/{id}/tasks`) protégée par le firewall de session.
 
 ## Dépannage
 

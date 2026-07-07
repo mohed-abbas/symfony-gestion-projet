@@ -18,6 +18,11 @@ fixtures:
 assets:
 	docker compose exec -it php php bin/console importmap:install
 
+test:
+	docker compose exec -T php php bin/console --env=test doctrine:database:create --if-not-exists
+	docker compose exec -T php php bin/console --env=test doctrine:migrations:migrate --no-interaction --allow-no-migration
+	docker compose exec -T php php bin/phpunit
+
 logs:
 	docker compose logs -f --tail=100 php
 
@@ -44,5 +49,6 @@ help:
 	@echo "  migrate  - Run Doctrine migrations"
 	@echo "  fixtures - Purge and reload test data (Faker)"
 	@echo "  assets   - Download front-end vendor assets (importmap:install)"
+	@echo "  test     - Set up the app_test DB and run PHPUnit"
 	@echo "  logs     - Follow the logs of the PHP container"
 	@echo "  help     - Show this help message"

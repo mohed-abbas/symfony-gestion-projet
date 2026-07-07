@@ -9,3 +9,11 @@ framework:
             - submit
             - authenticate
             - logout
+
+# Le CSRF stateless injecte le jeton via JS (Stimulus) : BrowserKit n'exécute pas de JS,
+# donc on le désactive en test pour pouvoir soumettre les formulaires depuis WebTestCase.
+when@test:
+    framework:
+        form:
+            csrf_protection:
+                enabled: false

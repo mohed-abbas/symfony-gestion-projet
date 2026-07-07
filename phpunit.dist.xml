@@ -40,5 +40,7 @@
     </source>
 
     <extensions>
+        <!-- Chaque test tourne dans une transaction rollback → base de test isolée. -->
+        <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
     </extensions>
 </phpunit>
