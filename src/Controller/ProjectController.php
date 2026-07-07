@@ -36,6 +36,7 @@ final class ProjectController extends AbstractController
     }
 
     #[Route('/new', name: 'app_project_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_MANAGER')] // spec §2.2 : créer projets/organisations = chef de projet
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $project = new Project();

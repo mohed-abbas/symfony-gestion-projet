@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Membres — {{ project.name }}{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% set role_labels = {
+    'lead': 'Chef de projet',
+    'contributor': 'Contributeur',
+    'viewer': 'Observateur',
+} %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1.2rem">
+        <h1 style="margin:0">Membres — {{ project.name }}</h1>
+        <a class="btn btn-secondary" href="{{ path('app_project_board', {id: project.id}) }}">← Kanban</a>
+    </div>
+
+    <div class="card wide">
+        <h2 style="margin-top:0; font-size:1.1rem">Inviter un membre</h2>
+        <form method="post" action="{{ path('app_project_member_add', {id: project.id}) }}" style="display:flex; gap:.6rem; flex-wrap:wrap; align-items:end">
+            <input type="hidden" name="_token" value="{{ csrf_token('member_add_' ~ project.id) }}">
+            <label>E-mail de l'utilisateur
+                <input type="email" name="email" required placeholder="membre@taskflow.test">
+            </label>
+            <label>Rôle
+                <select name="role">
+                    {% for role in roles %}
+                        <option value="{{ role }}"{{ role == 'contributor' ? ' selected' : '' }}>{{ role_labels[role] }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button type="submit" class="btn">Inviter</button>
+        </form>
+        <p class="muted" style="margin:.6rem 0 0">L'utilisateur doit déjà avoir un compte.</p>
+    </div>
+
+    <div class="card wide" style="margin-top:1.2rem">
+        <h2 style="margin-top:0; font-size:1.1rem">Membres actuels ({{ project.memberships|length }})</h2>
+        <table class="table">
+            <thead>
+                <tr><th>Utilisateur</th><th>E-mail</th><th>Rôle</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for membership in project.memberships %}
+                    <tr>
+                        <td>{{ membership.user.fullName }}</td>
+                        <td class="muted">{{ membership.user.email }}</td>
+                        <td>
+                            <form method="post" action="{{ path('app_project_member_role', {id: project.id, membership: membership.id}) }}" style="display:flex; gap:.4rem">
+                                <input type="hidden" name="_token" value="{{ csrf_token('member_role_' ~ membership.id) }}">
+                                <select name="role" onchange="this.form.submit()">
+                                    {% for role in roles %}
+                                        <option value="{{ role }}"{{ role == membership.internalRole ? ' selected' : '' }}>{{ role_labels[role] }}</option>
+                                    {% endfor %}
+                                </select>
+                                <noscript><button type="submit" class="btn btn-sm">OK</button></noscript>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" action="{{ path('app_project_member_remove', {id: project.id, membership: membership.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('member_remove_' ~ membership.id) }}">
+                                <button type="submit" class="btn btn-secondary btn-sm">Retirer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

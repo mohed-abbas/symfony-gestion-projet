@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Organisations — TaskFlow{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1.2rem">
+        <h1 style="margin:0">Organisations</h1>
+        <a class="btn" href="{{ path('app_organization_new') }}">+ Nouvelle organisation</a>
+    </div>
+
+    {% if organizations is empty %}
+        <div class="card">
+            <p class="muted">Aucune organisation pour l'instant.</p>
+            <a class="btn" href="{{ path('app_organization_new') }}">Créer une organisation</a>
+        </div>
+    {% else %}
+        <div class="grid">
+            {% for organization in organizations %}
+                <div class="card wide" style="margin:0">
+                    <h1 style="font-size:1.15rem; margin:.2rem 0">{{ organization.name }}</h1>
+                    <p class="muted" style="margin:.2rem 0">
+                        {{ organization.projects|length }} projet(s)
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

@@ -15,6 +15,10 @@ migrate:
 fixtures:
 	docker compose exec -it php php bin/console doctrine:fixtures:load --no-interaction
 
+setup:
+	docker compose exec -it php php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+	docker compose exec -it php php bin/console doctrine:fixtures:load --no-interaction
+
 assets:
 	docker compose exec -it php php bin/console importmap:install
 
@@ -41,6 +45,7 @@ restart: down up
 help:
 	@echo "Makefile commands:"
 	@echo "  install  - Premier lancement : build + démarrage de tout"
+	@echo "  setup    - Migrations + jeu de données de test (comptes, organisations, projets)"
 	@echo "  sh       - Execute a shell inside the PHP container"
 	@echo "  up       - Start the Docker containers"
 	@echo "  down     - Stop and remove the Docker containers"

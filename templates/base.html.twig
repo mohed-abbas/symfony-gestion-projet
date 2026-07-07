@@ -83,6 +83,7 @@
             <nav>
                 {% if app.user %}
                     <a href="{{ path('app_project_index') }}">Projets</a>
+                    {% if is_granted('ROLE_MANAGER') %}<a href="{{ path('app_organization_index') }}">Organisations</a>{% endif %}
                     {% if is_granted('ROLE_ADMIN') %}<a href="{{ path('app_admin_dashboard') }}">Admin</a>{% endif %}
                     {{ render(controller('App\\Controller\\NotificationController::badge')) }}
                     <span class="muted">{{ app.user.userIdentifier }}</span>

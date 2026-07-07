@@ -18,6 +18,7 @@
             <a class="btn btn-secondary" href="{{ path('app_project_backlog', {id: project.id}) }}">Backlog</a>
             <a class="btn btn-secondary" href="{{ path('app_project_stats', {id: project.id}) }}">Statistiques</a>
             {% if is_granted(constant('App\\Security\\Voter\\ProjectVoter::EDIT'), project) %}
+                <a class="btn btn-secondary" href="{{ path('app_project_member_index', {id: project.id}) }}">Membres</a>
                 <a class="btn btn-secondary" href="{{ path('app_project_edit', {id: project.id}) }}">Modifier</a>
                 <form method="post" action="{{ path('app_project_ai_generate', {id: project.id}) }}" class="inline-form">
                     <input type="hidden" name="_token" value="{{ csrf_token('ai_generate_' ~ project.id) }}">

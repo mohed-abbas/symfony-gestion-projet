@@ -29,12 +29,38 @@ Une fois démarré :
 | Adminer (BDD)      | http://localhost:8088   |
 | Mailpit (e-mails)  | http://localhost:8025   |
 
-Charger les données de test (comptes `admin@` / `manager@` / `member@taskflow.test`,
-mot de passe `password`) :
+**Après le premier boot**, charger les migrations **et** le jeu de données de test
+(comptes `admin@` / `manager@` / `member@taskflow.test` mot de passe `password`, ainsi que des
+**organisations** et projets de démonstration) :
+
+```bash
+make setup
+```
+
+> ⚠️ Sans cette étape, la base est vide : aucun compte pour se connecter et **aucune
+> organisation**, or un projet doit appartenir à une organisation → la création de projet est
+> bloquée. `make setup` règle les deux. (`doctrine:fixtures:load` **purge** la base : ne jamais
+> l'automatiser au boot ; c'est pourquoi c'est une étape manuelle.)
+
+Pour recharger uniquement les données de test :
 
 ```bash
 make fixtures
 ```
+
+## Rôles & organisation du travail
+
+Modèle de rôles (cf. cahier des charges) : `ROLE_USER ⊂ ROLE_MANAGER ⊂ ROLE_ADMIN`.
+
+- Un **chef de projet** (`ROLE_MANAGER`) crée une **organisation**, y crée des **projets**, et
+  **invite des membres** (écran « Membres » d'un projet) en leur attribuant un rôle interne
+  (chef / contributeur / observateur).
+- Un **membre** (`ROLE_USER`) ne crée pas de projet : il est **invité** à un projet, puis y
+  consulte / fait avancer / commente les tâches qui lui sont assignées. Un nouvel inscrit est
+  `ROLE_USER` ; un **admin** peut le promouvoir gestionnaire via `/admin/users`.
+
+Un utilisateur ne peut être **assigné** à une tâche que s'il est **membre du projet** — d'où
+l'importance d'inviter les membres pour que le Kanban soit pleinement utilisable.
 
 ## Commandes utiles
 
@@ -45,7 +71,8 @@ make restart   # redémarrer
 make sh        # shell dans le conteneur PHP
 make cache     # vider le cache Symfony
 make migrate   # jouer les migrations Doctrine
-make fixtures  # (re)charger les données de test
+make setup     # migrations + données de test (à faire au premier boot)
+make fixtures  # (re)charger uniquement les données de test
 make assets    # (re)télécharger les assets front (importmap:install)
 make test      # prépare la base app_test et lance PHPUnit
 make logs      # suivre les logs du conteneur PHP

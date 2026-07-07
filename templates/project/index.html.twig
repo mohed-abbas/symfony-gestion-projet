@@ -6,13 +6,19 @@
 {% block body %}
     <div class="row-between" style="margin-bottom:1.2rem">
         <h1 style="margin:0">Mes projets</h1>
-        <a class="btn" href="{{ path('app_project_new') }}">+ Nouveau projet</a>
+        {% if is_granted('ROLE_MANAGER') %}
+            <a class="btn" href="{{ path('app_project_new') }}">+ Nouveau projet</a>
+        {% endif %}
     </div>
 
     {% if projects is empty %}
         <div class="card">
             <p class="muted">Vous ne participez à aucun projet pour l'instant.</p>
-            <a class="btn" href="{{ path('app_project_new') }}">Créer mon premier projet</a>
+            {% if is_granted('ROLE_MANAGER') %}
+                <a class="btn" href="{{ path('app_project_new') }}">Créer mon premier projet</a>
+            {% else %}
+                <p class="muted">Demandez à un chef de projet de vous inviter, ou à un administrateur de vous accorder le rôle gestionnaire.</p>
+            {% endif %}
         </div>
     {% else %}
         <div class="grid">
