@@ -33,10 +33,11 @@ services:
         value: "18"
       - key: MESSENGER_TRANSPORT_DSN
         value: doctrine://default
-      # Pas de SMTP en prod : les e-mails sont ignorés (les notifs in-app fonctionnent).
-      # Pour activer l'envoi, remplacer par un DSN réel (Brevo/Mailgun/Gmail…).
+      # Géré dans le dashboard (secret, non versionné) pour ne pas être écrasé au re-sync.
+      # Démo : DSN Mailtrap sandbox → smtp://USER:PASS@sandbox.smtp.mailtrap.io:2525
+      # Non défini : Symfony retombe sur null://null (mails ignorés, notifs in-app OK).
       - key: MAILER_DSN
-        value: null://null
+        sync: false
       # Mettre à 1 pour le PREMIER déploiement (seed des comptes de test + données démo),
       # puis remettre à 0 : les fixtures purgent la base à chaque exécution.
       - key: APP_LOAD_FIXTURES

@@ -13,6 +13,9 @@ parameters:
     # Version Postgres par défaut (repli quand l'URL ne porte pas serverVersion, ex. Render).
     env(DATABASE_SERVER_VERSION): '16'
 
+    # Repli mailer : si MAILER_DSN n'est pas défini (prod sans SMTP), les mails sont ignorés.
+    env(MAILER_DSN): 'null://null'
+
     # Valeurs par défaut de l'API IA (Groq) : .env est gitignoré ici, donc on garantit un boot
     # du conteneur sans variables définies. La vraie clé se met dans .env.local (non versionné).
     env(GROQ_API_BASE_URL): 'https://api.groq.com/openai/v1'
