@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Task;
 use App\Entity\TaskComment;
+use App\Entity\User;
 use App\Form\TaskCommentType;
 use App\Message\TaskCommentedMessage;
 use App\Security\Voter\TaskVoter;
@@ -22,7 +23,9 @@ final class TaskCommentController extends AbstractController
     #[IsGranted(TaskVoter::VIEW, subject: 'task')]
     public function new(Request $request, Task $task, EntityManagerInterface $em, MessageBusInterface $bus): Response
     {
-        $comment = (new TaskComment())->setTask($task)->setAuthor($this->getUser());
+        /** @var User $user */
+        $user = $this->getUser();
+        $comment = (new TaskComment())->setTask($task)->setAuthor($user);
         $form = $this->createForm(TaskCommentType::class, $comment);
         $form->handleRequest($request);
 
@@ -40,8 +43,10 @@ final class TaskCommentController extends AbstractController
     public function delete(Request $request, TaskComment $comment, EntityManagerInterface $em): Response
     {
         $task = $comment->getTask();
+        /** @var User $user */
+        $user = $this->getUser();
         // Author, project lead or admin may remove a comment.
-        $isAuthor = $comment->getAuthor()?->getId() === $this->getUser()->getId();
+        $isAuthor = $comment->getAuthor()?->getId() === $user->getId();
         if (!$isAuthor && !$this->isGranted(TaskVoter::DELETE, $task)) {
             throw $this->createAccessDeniedException();
         }

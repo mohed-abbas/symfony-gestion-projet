@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Document;
 use App\Entity\Task;
+use App\Entity\User;
 use App\Form\DocumentType;
 use App\Security\Voter\TaskVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,9 +37,11 @@ final class DocumentController extends AbstractController
             /** @var UploadedFile|null $file */
             $file = $form->get('file')->getData();
             if ($file) {
+                /** @var User $user */
+                $user = $this->getUser();
                 $document = (new Document())
                     ->setTask($task)
-                    ->setOwner($this->getUser())
+                    ->setOwner($user)
                     ->setFilename($file->getClientOriginalName())
                     ->setMimeType($file->getMimeType())
                     ->setSize($file->getSize());
@@ -79,8 +82,10 @@ final class DocumentController extends AbstractController
     public function delete(Request $request, Document $document, EntityManagerInterface $em): Response
     {
         $task = $document->getTask();
+        /** @var User $user */
+        $user = $this->getUser();
         // Uploader, project lead or admin may remove an attachment.
-        $isOwner = $document->getOwner()?->getId() === $this->getUser()->getId();
+        $isOwner = $document->getOwner()?->getId() === $user->getId();
         if (!$isOwner && !$this->isGranted(TaskVoter::DELETE, $task)) {
             throw $this->createAccessDeniedException();
         }

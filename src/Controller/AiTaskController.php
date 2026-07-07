@@ -7,6 +7,7 @@ use App\Entity\FeatureTask;
 use App\Entity\Project;
 use App\Entity\StoryTask;
 use App\Entity\Task;
+use App\Entity\User;
 use App\Security\Voter\ProjectVoter;
 use App\Service\AiTaskGenerator;
 use App\Service\AiUnavailableException;
@@ -85,14 +86,15 @@ final class AiTaskController extends AbstractController
                 continue;
             }
 
+            /** @var User $user */
+            $user = $this->getUser();
             $class = self::TYPE_MAP[$data['type']] ?? FeatureTask::class;
-            /** @var Task $task */
             $task = new $class();
             $task->setTitle($data['title'])
                 ->setDescription($data['description'])
                 ->setPriority($data['priority'])
                 ->setProject($project)
-                ->setAuthor($this->getUser());
+                ->setAuthor($user);
             $em->persist($task);
             ++$created;
         }

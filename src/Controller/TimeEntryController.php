@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Task;
 use App\Entity\TimeEntry;
+use App\Entity\User;
 use App\Form\TimeEntryType;
 use App\Security\Voter\TaskVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,7 +21,9 @@ final class TimeEntryController extends AbstractController
     #[IsGranted(TaskVoter::VIEW, subject: 'task')]
     public function new(Request $request, Task $task, EntityManagerInterface $em): Response
     {
-        $entry = (new TimeEntry())->setTask($task)->setUser($this->getUser());
+        /** @var User $user */
+        $user = $this->getUser();
+        $entry = (new TimeEntry())->setTask($task)->setUser($user);
         $form = $this->createForm(TimeEntryType::class, $entry);
         $form->handleRequest($request);
 

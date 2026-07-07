@@ -1,0 +1,11 @@
+parameters:
+    level: 5
+    paths:
+        - src
+    # Extensions Symfony/Doctrine chargées via phpstan/extension-installer.
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    doctrine:
+        # Les entités générées par Maker déclarent des propriétés nullables (?string $x = null)
+        # sur des colonnes non-nullables : l'ORM instancie vide puis remplit via les setters.
+        allowNullablePropertyForRequiredField: true

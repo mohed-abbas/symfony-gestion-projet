@@ -44,10 +44,12 @@ final class ProjectController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var User $user */
+            $user = $this->getUser();
             // Creator automatically becomes the project LEAD.
             $membership = (new ProjectMembership())
                 ->setProject($project)
-                ->setUser($this->getUser())
+                ->setUser($user)
                 ->setInternalRole(ProjectMembership::ROLE_LEAD);
             $project->addMembership($membership);
 

@@ -7,6 +7,7 @@ use App\Entity\FeatureTask;
 use App\Entity\Project;
 use App\Entity\StoryTask;
 use App\Entity\Task;
+use App\Entity\User;
 use App\Message\TaskAssignedMessage;
 use App\Repository\TaskRepository;
 use App\Security\Voter\ProjectVoter;
@@ -82,7 +83,9 @@ final class TaskApiController extends AbstractController
             return $this->error('Corps JSON invalide.', Response::HTTP_BAD_REQUEST);
         }
 
-        $task->setProject($project)->setAuthor($this->getUser());
+        /** @var User $user */
+        $user = $this->getUser();
+        $task->setProject($project)->setAuthor($user);
 
         $violations = $validator->validate($task);
         if (\count($violations) > 0) {

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Entity\Task;
 use App\Entity\User;
+use Symfony\Component\Form\ClickableInterface;
 use App\Form\DocumentType;
 use App\Form\TaskCommentType;
 use App\Form\TaskType;
@@ -46,10 +47,13 @@ final class TaskController extends AbstractController
             return $this->render('task/_form.html.twig', ['form' => $form, 'project' => $project]);
         }
 
-        if ($form->isSubmitted() && $form->get('save')->isClicked() && $form->isValid()) {
+        $save = $form->get('save');
+        if ($form->isSubmitted() && $save instanceof ClickableInterface && $save->isClicked() && $form->isValid()) {
             /** @var Task $task */
             $task = $form->getData();
-            $task->setProject($project)->setAuthor($this->getUser());
+            /** @var User $user */
+            $user = $this->getUser();
+            $task->setProject($project)->setAuthor($user);
             $em->persist($task);
             $em->flush();
 
@@ -97,7 +101,8 @@ final class TaskController extends AbstractController
             return $this->render('task/_form.html.twig', ['form' => $form, 'project' => $task->getProject()]);
         }
 
-        if ($form->isSubmitted() && $form->get('save')->isClicked() && $form->isValid()) {
+        $save = $form->get('save');
+        if ($form->isSubmitted() && $save instanceof ClickableInterface && $save->isClicked() && $form->isValid()) {
             $em->flush();
 
             // Notifier seulement si l'assigné a changé vers un utilisateur non nul.

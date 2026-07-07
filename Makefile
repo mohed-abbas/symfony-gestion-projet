@@ -27,6 +27,17 @@ test:
 	docker compose exec -T php php bin/console --env=test doctrine:migrations:migrate --no-interaction --allow-no-migration
 	docker compose exec -T php php bin/phpunit
 
+stan:
+	docker compose exec -T php php bin/console cache:warmup
+	docker compose exec -T php php -d memory_limit=1G vendor/bin/phpstan analyse --no-progress
+
+lint:
+	docker compose exec -T php php bin/console lint:container
+	docker compose exec -T php php bin/console lint:twig templates
+	docker compose exec -T php php bin/console lint:yaml config --parse-tags
+
+ci: lint stan test
+
 logs:
 	docker compose logs -f --tail=100 php
 
@@ -55,5 +66,8 @@ help:
 	@echo "  fixtures - Purge and reload test data (Faker)"
 	@echo "  assets   - Download front-end vendor assets (importmap:install)"
 	@echo "  test     - Set up the app_test DB and run PHPUnit"
+	@echo "  stan     - Run PHPStan (static analysis, level 5)"
+	@echo "  lint     - Lint container, Twig templates and YAML config"
+	@echo "  ci       - Run the full CI suite locally (lint + stan + test)"
 	@echo "  logs     - Follow the logs of the PHP container"
 	@echo "  help     - Show this help message"
