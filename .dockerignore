@@ -1,0 +1,21 @@
+# Régénérés dans l'image (composer install / importmap:install) — ne pas copier depuis l'hôte.
+/vendor/
+/var/
+/assets/vendor/
+/public/assets/
+/node_modules/
+
+# Secrets & overrides locaux (Render fournit les vraies variables d'env).
+/.env
+/.env.local
+/.env.*.local
+
+# Git & outillage hors runtime.
+/.git/
+/.github/
+/tests/
+/docker-compose*.yml
+/compose*.yaml
+/Dockerfile.dev
+/phpstan.dist.neon
+/phpunit.dist.xml

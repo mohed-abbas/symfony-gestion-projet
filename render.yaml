@@ -1,0 +1,40 @@
+# Blueprint Render : service web (Docker/FrankenPHP) + base Postgres managée.
+# Déploiement : dashboard Render → New → Blueprint → sélectionner ce dépôt.
+databases:
+  - name: taskflow-db
+    databaseName: app
+    user: app
+    plan: free
+
+services:
+  - type: web
+    name: taskflow
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeploy: true
+    healthCheckPath: /login
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_DEBUG
+        value: "0"
+      # Généré une fois par Render, persistant.
+      - key: APP_SECRET
+        generateValue: true
+      # URL de connexion interne de la base ci-dessus (injectée automatiquement).
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taskflow-db
+          property: connectionString
+      - key: MESSENGER_TRANSPORT_DSN
+        value: doctrine://default
+      # Pas de SMTP en prod : les e-mails sont ignorés (les notifs in-app fonctionnent).
+      # Pour activer l'envoi, remplacer par un DSN réel (Brevo/Mailgun/Gmail…).
+      - key: MAILER_DSN
+        value: null://null
+      # Mettre à 1 pour le PREMIER déploiement (seed des comptes de test + données démo),
+      # puis remettre à 0 : les fixtures purgent la base à chaque exécution.
+      - key: APP_LOAD_FIXTURES
+        value: "0"

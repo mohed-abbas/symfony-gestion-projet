@@ -1,0 +1,12 @@
+{
+	# FrankenPHP embarque PHP ; Render termine le TLS en amont, on écoute en clair sur $PORT.
+	frankenphp
+	auto_https off
+	admin off
+}
+
+:{$PORT:8080} {
+	root * /app/public
+	encode zstd br gzip
+	php_server
+}

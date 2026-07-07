@@ -16,6 +16,12 @@ framework:
                 auth_bearer: '%env(GROQ_API_KEY)%'
                 timeout: 30
 
+when@prod:
+    framework:
+        # Derrière le load-balancer Render : faire confiance aux en-têtes X-Forwarded-* (HTTPS, IP réelle).
+        trusted_proxies: 'private_ranges'
+        trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
+
 when@test:
     framework:
         test: true
