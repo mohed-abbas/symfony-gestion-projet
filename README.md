@@ -1,6 +1,33 @@
 # TaskFlow
 
-MVP de gestion de projet (Jira/Trello-lite) — Symfony 8, Twig, Doctrine (PostgreSQL), Docker.
+MVP de gestion de projet collaborative (type Jira / Trello) — **Symfony 8** (PHP 8.4), **Twig**,
+**Doctrine** (PostgreSQL), **Docker**. Projet de fin de cycle ESGI 4IW2 (développeur solo).
+
+- **Application en ligne :** `https://<votre-app>.onrender.com` *(remplacer par l'URL Render)*
+- **Support de présentation :** `../presentation.md`
+
+## Fonctionnalités
+
+- **Projets, sprints & tâches** sur un **tableau Kanban** (glisser-déposer) ; tâches Bug /
+  Feature / Story (héritage Doctrine STI) avec **formulaire dynamique** (Form Events).
+- **Organisations** & **invitation de membres** (rôle interne lead / contributeur / observateur).
+- **Commentaires, pièces jointes, labels, suivi du temps** (worklog).
+- **Notifications in-app + e-mails**, envoyés en **asynchrone** (Symfony Messenger).
+- **API JSON** dédiée (`/api/v1/…`) avec groupes de normalisation (Serializer).
+- **Génération de tâches par IA** (API externe Groq via HttpClient — optionnelle).
+- **Back-office d'administration** (`/admin`) : utilisateurs, projets, statistiques globales.
+- **Sécurité** : 3 rôles (`ROLE_USER ⊂ ROLE_MANAGER ⊂ ROLE_ADMIN`) + Voters, CSRF, comptes
+  désactivables.
+
+## Comptes de test
+
+Créés par les fixtures (`make setup`). Mot de passe commun : **`password`**.
+
+| Rôle | E-mail |
+| --- | --- |
+| Administrateur | `admin@taskflow.test` |
+| Chef de projet | `manager@taskflow.test` |
+| Membre | `member@taskflow.test` |
 
 ## Prérequis
 
@@ -120,3 +147,47 @@ Pour l'activer, renseigner la clé dans `.env.local` (**non versionné**) :
 ```dotenv
 GROQ_API_KEY=gsk_votre_cle_ici
 ```
+
+## Intégration continue (CI)
+
+À chaque push / pull request, **GitHub Actions** (`.github/workflows/ci.yml`) exécute :
+
+1. **Lint** : `lint:container`, `lint:twig`, `lint:yaml` ;
+2. **Analyse statique** : **PHPStan niveau 5** (`phpstan.dist.neon`) ;
+3. **Tests** : PHPUnit sur une base Postgres de service.
+
+Localement, la même suite est reproductible :
+
+```bash
+make lint   # container + twig + yaml
+make stan   # PHPStan niveau 5
+make ci     # lint + stan + test (suite complète)
+```
+
+## Déploiement (production)
+
+L'application est déployée sur **[Render](https://render.com)** via un **Blueprint** (`render.yaml`) :
+service web **Docker/FrankenPHP** + base **PostgreSQL managée**, `autoDeploy` sur `main`.
+
+**Différences dev ↔ prod** (même code, l'infra change par variables d'environnement) :
+
+| | Dev local (Docker Compose) | Production (Render) |
+| --- | --- | --- |
+| Serveur | conteneur PHP de dev | FrankenPHP (image Docker, écoute `$PORT`) |
+| Base | Postgres conteneurisé | Postgres managé (`DATABASE_URL` injectée) |
+| Worker async | conteneur `messenger-worker` | worker en tâche de fond dans le conteneur web |
+| E-mails | Mailpit (`:8025`) | Mailtrap Sandbox (SMTP) ou `null://null` |
+| Assets | `importmap:install` au boot | `asset-map:compile` au build |
+| Env | `APP_ENV=dev` (profiler) | `APP_ENV=prod`, `APP_DEBUG=0`, `trusted_proxies` |
+
+**Fichiers clés :** `Dockerfile` (image prod), `docker/Caddyfile` (config FrankenPHP),
+`docker/entrypoint.prod.sh` (migrations + seed optionnel + worker), `render.yaml` (Blueprint).
+
+**Variables d'environnement (dashboard Render) :** `APP_SECRET` (généré), `DATABASE_URL` (auto),
+`DATABASE_SERVER_VERSION`, `MESSENGER_TRANSPORT_DSN=doctrine://default`, `MAILER_DSN` (secret,
+Mailtrap ou `null://null`), `APP_LOAD_FIXTURES`.
+
+**Seed initial** (comptes de test + données de démo) — sans accès Shell : passer
+`APP_LOAD_FIXTURES=1` dans l'onglet *Environment*, laisser le conteneur redémarrer et charger les
+fixtures, puis **remettre `APP_LOAD_FIXTURES=0`** (les fixtures purgent la base : ne pas les
+laisser se rejouer à chaque redémarrage).
