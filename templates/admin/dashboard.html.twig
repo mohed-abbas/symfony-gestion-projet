@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration — TaskFlow{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1rem">
+        <div>
+            <h1 style="margin:0">Back-office</h1>
+            <p class="muted" style="margin:.2rem 0">Vue d'ensemble de la plateforme.</p>
+        </div>
+        <div class="form-actions" style="margin:0">
+            <a class="btn btn-secondary" href="{{ path('app_admin_user_index') }}">Utilisateurs</a>
+            <a class="btn btn-secondary" href="{{ path('app_admin_project_index') }}">Projets</a>
+        </div>
+    </div>
+
+    {# Global counters #}
+    <div class="grid" style="grid-template-columns:repeat(5,1fr); gap:.8rem; margin-bottom:1rem">
+        {% set cards = {
+            'Utilisateurs': stats.usersTotal,
+            'Actifs': stats.usersActive,
+            'Projets actifs': stats.projectsActive,
+            'Projets archivés': stats.projectsArchived,
+            'Tâches': stats.tasksTotal,
+        } %}
+        {% for label, value in cards %}
+            <div class="card" style="margin:0; text-align:center">
+                <div style="font-size:1.8rem; font-weight:700">{{ value }}</div>
+                <div class="muted">{{ label }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="card" style="margin:0; max-width:520px">
+        <h1 style="font-size:1.05rem; margin:0 0 .5rem">Tâches par statut</h1>
+        <div style="position:relative; height:280px">{{ render_chart(tasksChart) }}</div>
+    </div>
+{% endblock %}

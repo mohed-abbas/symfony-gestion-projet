@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Éditer {{ user.fullName }} — Admin{% endblock %}
+
+{% block body %}
+    <div class="card">
+        <h1 style="font-size:1.15rem; margin:0 0 .3rem">{{ user.fullName }}</h1>
+        <p class="muted" style="margin:0 0 1rem">{{ user.email }}</p>
+
+        {% if is_self %}
+            <div class="alert alert-danger">Vous ne pouvez pas modifier votre propre rôle ni votre statut (protection anti lock-out).</div>
+        {% endif %}
+
+        {{ form_start(form) }}
+            {{ form_row(form.roles) }}
+            {{ form_row(form.isActive) }}
+            <div class="form-actions">
+                {% if not is_self %}<button type="submit">Enregistrer</button>{% endif %}
+                <a class="btn btn-secondary" href="{{ path('app_admin_user_index') }}">Retour</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Utilisateurs — Admin{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1rem">
+        <h1 style="margin:0">Utilisateurs</h1>
+        <a class="btn btn-secondary" href="{{ path('app_admin_dashboard') }}">← Back-office</a>
+    </div>
+
+    <div class="card wide" style="margin:0">
+        <table>
+            <thead>
+                <tr><th>Nom</th><th>Email</th><th>Rôles</th><th>Statut</th><th>Vérifié</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.fullName }}</td>
+                        <td class="muted">{{ user.email }}</td>
+                        <td>
+                            {% for role in user.roles %}
+                                <span class="badge badge-muted">{{ role|replace({'ROLE_': ''})|lower }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if user.active %}
+                                <span class="badge badge-feature">Actif</span>
+                            {% else %}
+                                <span class="badge badge-high">Désactivé</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.verified ? '✓' : '—' }}</td>
+                        <td><a class="btn btn-secondary" style="margin:0" href="{{ path('app_admin_user_edit', {id: user.id}) }}">Éditer</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

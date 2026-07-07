@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Projets — Admin{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1rem">
+        <h1 style="margin:0">Projets</h1>
+        <a class="btn btn-secondary" href="{{ path('app_admin_dashboard') }}">← Back-office</a>
+    </div>
+
+    <div class="card wide" style="margin:0">
+        <table>
+            <thead>
+                <tr><th>Clé</th><th>Nom</th><th>Organisation</th><th>Statut</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                    <tr>
+                        <td><span class="badge badge-muted">{{ project.projectKey }}</span></td>
+                        <td>{{ project.name }}</td>
+                        <td class="muted">{{ project.organization ? project.organization.name : '—' }}</td>
+                        <td>
+                            {% if project.archived %}
+                                <span class="badge badge-muted">Archivé</span>
+                            {% else %}
+                                <span class="badge badge-feature">Actif</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space:nowrap">
+                            <a class="btn btn-secondary" style="margin:0" href="{{ path('app_admin_project_edit', {id: project.id}) }}">Éditer</a>
+                            <form method="post" action="{{ path('app_admin_project_archive', {id: project.id}) }}" class="inline-form">
+                                <input type="hidden" name="_token" value="{{ csrf_token('archive_' ~ project.id) }}">
+                                <button type="submit" class="btn btn-secondary" style="margin:0">{{ project.archived ? 'Réactiver' : 'Archiver' }}</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

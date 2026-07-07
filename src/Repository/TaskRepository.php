@@ -70,6 +70,30 @@ class TaskRepository extends ServiceEntityRepository
     }
 
     /**
+     * Task counts per status across the whole platform (admin dashboard).
+     *
+     * @return array<string, int> status => count
+     */
+    public function countByStatusGlobal(): array
+    {
+        $rows = $this->createQueryBuilder('t')
+            ->select('t.status AS status', 'COUNT(t.id) AS total')
+            ->groupBy('t.status')
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($rows, 'total', 'status');
+    }
+
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('t')
+            ->select('COUNT(t.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
      * Task counts per STI type. The discriminator isn't a mapped field, so we
      * count each subtype in one query via INSTANCE OF inside CASE.
      *

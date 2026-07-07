@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Éditer {{ project.name }} — Admin{% endblock %}
+
+{% block body %}
+    <div class="card">
+        <h1 style="font-size:1.15rem; margin:0 0 1rem">Éditer le projet</h1>
+        {{ form_start(form) }}
+            {{ form_widget(form) }}
+            <div class="form-actions">
+                <button type="submit">Enregistrer</button>
+                <a class="btn btn-secondary" href="{{ path('app_admin_project_index') }}">Retour</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

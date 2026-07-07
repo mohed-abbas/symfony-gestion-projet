@@ -34,28 +34,34 @@ class ProjectRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    //    /**
-    //     * @return Project[] Returns an array of Project objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * All projects with org + memberships pre-loaded for the admin list.
+     *
+     * @return Project[]
+     */
+    public function findAllForAdmin(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.organization', 'o')->addSelect('o')
+            ->orderBy('p.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Project
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countByStatus(string $status): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.status = :status')->setParameter('status', $status)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
