@@ -18,6 +18,11 @@ composer install --no-interaction --prefer-dist --no-scripts
 echo "==> Génération des autoloaders..."
 composer dump-autoload --no-interaction
 
+# assets/vendor/ est gitignoré : on télécharge les paquets JS épinglés dans importmap.php
+# (composer install tourne avec --no-scripts, qui saute l'auto-script importmap:install).
+echo "==> Installation des assets front (importmap)..."
+php bin/console importmap:install
+
 echo "==> Warm-up du cache Symfony..."
 php bin/console cache:warmup
 
