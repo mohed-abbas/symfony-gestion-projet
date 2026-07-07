@@ -4,6 +4,7 @@ MVP de gestion de projet collaborative (type Jira / Trello) — **Symfony 8** (P
 **Doctrine** (PostgreSQL), **Docker**. Projet de fin de cycle ESGI 4IW2 (développeur solo).
 
 - **Application en ligne :** `https://<votre-app>.onrender.com` *(remplacer par l'URL Render)*
+- **Schéma de la base de données :** [`docs/database-schema.md`](docs/database-schema.md) (MCD + UML, rendu Mermaid)
 - **Support de présentation :** `../presentation.md`
 
 ## Fonctionnalités

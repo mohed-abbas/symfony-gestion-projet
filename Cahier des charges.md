@@ -226,8 +226,8 @@ projets, statistiques globales (nombre d'utilisateurs, projets actifs, tâches p
 
 **Héritage :** `Task` (Single Table Inheritance) → `BugTask`, `FeatureTask`, `StoryTask`.
 
-> Le schéma détaillé (MCD / diagramme de classes UML) est fourni séparément dans
-> `Schema BDD.png` et sera tenu à jour.
+> Le schéma détaillé (MCD + diagramme de classes UML) est maintenu à jour avec le code dans
+> [`docs/database-schema.md`](docs/database-schema.md) (rendu Mermaid par GitHub).
 
 ---
 
@@ -292,7 +292,7 @@ Application hébergée et accessible en ligne *(cible à confirmer : VPS / Rende
 ## 11. Livrables
 
 * Cahier des charges (ce document).
-* Schéma de la base de données (`Schema BDD.png`).
+* Schéma de la base de données ([`docs/database-schema.md`](docs/database-schema.md) — MCD + UML).
 * Jeu de fixtures réaliste (DoctrineFixturesBundle + Faker).
 * Guide d'installation (`README.md`) avec comptes de test par rôle.
 * Code source + pipeline CI + application déployée.
