@@ -5,12 +5,14 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Entity\ProjectMembership;
 use App\Entity\User;
+use App\Message\ProjectMemberAddedMessage;
 use App\Repository\UserRepository;
 use App\Security\Voter\ProjectVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -36,7 +38,7 @@ final class ProjectMemberController extends AbstractController
     }
 
     #[Route('/add', name: 'app_project_member_add', methods: ['POST'])]
-    public function add(Project $project, Request $request, UserRepository $users, EntityManagerInterface $em): Response
+    public function add(Project $project, Request $request, UserRepository $users, EntityManagerInterface $em, MessageBusInterface $bus): Response
     {
         if (!$this->isCsrfTokenValid('member_add_'.$project->getId(), $request->request->getString('_token'))) {
             throw $this->createAccessDeniedException();
@@ -61,6 +63,8 @@ final class ProjectMemberController extends AbstractController
             $project->addMembership($membership);
             $em->persist($membership);
             $em->flush();
+            // Notif in-app + e-mail d'invitation, traités en arrière-plan par le worker.
+            $bus->dispatch(new ProjectMemberAddedMessage($project->getId(), $user->getId()));
             $this->addFlash('success', sprintf('%s a été ajouté au projet.', $user->getFullName()));
         }
 

@@ -25,3 +25,4 @@ framework:
             # Notifications de tâches traitées en arrière-plan
             App\Message\TaskAssignedMessage: async
             App\Message\TaskCommentedMessage: async
+            App\Message\ProjectMemberAddedMessage: async

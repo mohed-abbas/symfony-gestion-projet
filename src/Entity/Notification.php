@@ -11,6 +11,7 @@ class Notification
     public const TYPE_TASK_ASSIGNED = 'task_assigned';
     public const TYPE_TASK_COMMENTED = 'task_commented';
     public const TYPE_DUE_SOON = 'due_soon';
+    public const TYPE_PROJECT_INVITED = 'project_invited';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
