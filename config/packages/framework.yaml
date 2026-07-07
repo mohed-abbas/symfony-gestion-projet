@@ -8,6 +8,14 @@ framework:
     #esi: true
     #fragments: true
 
+    # Client HTTP scopé pour l'API IA (Groq). Clé injectée depuis .env.local.
+    http_client:
+        scoped_clients:
+            groq.client:
+                base_uri: '%env(GROQ_API_BASE_URL)%'
+                auth_bearer: '%env(GROQ_API_KEY)%'
+                timeout: 30
+
 when@test:
     framework:
         test: true

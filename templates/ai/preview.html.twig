@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Suggestions IA — {{ project.name }}{% endblock %}
+{% block main_class %}wide{% endblock %}
+
+{% block body %}
+    <div class="row-between" style="margin-bottom:1rem">
+        <div>
+            <h1 style="margin:0">Suggestions de tâches (IA)</h1>
+            <p class="muted" style="margin:.2rem 0">Projet « {{ project.name }} » — sélectionnez les tâches à créer.</p>
+        </div>
+        <a class="btn btn-secondary" href="{{ path('app_project_show', {id: project.id}) }}">Annuler</a>
+    </div>
+
+    <form method="post" action="{{ path('app_project_ai_create', {id: project.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('ai_create_' ~ project.id) }}">
+
+        <div class="card wide" style="margin:0 0 1rem">
+            {% for i, s in suggestions %}
+                <label class="notif-item" style="cursor:pointer; align-items:flex-start">
+                    <input type="checkbox" name="selected[]" value="{{ i }}" checked style="width:auto; margin-top:.25rem">
+                    <div>
+                        <div style="display:flex; gap:.4rem; align-items:center; flex-wrap:wrap">
+                            <strong>{{ s.title }}</strong>
+                            <span class="badge badge-{{ s.type }}">{{ s.type }}</span>
+                            <span class="badge badge-{{ s.priority }}">{{ s.priority }}</span>
+                        </div>
+                        {% if s.description %}<div class="muted" style="margin-top:.2rem">{{ s.description }}</div>{% endif %}
+                    </div>
+                </label>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions" style="margin:0">
+            <button type="submit">Créer les tâches sélectionnées</button>
+        </div>
+    </form>
+{% endblock %}
