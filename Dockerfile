@@ -33,4 +33,8 @@ COPY docker/Caddyfile /etc/frankenphp/Caddyfile
 COPY docker/entrypoint.prod.sh /usr/local/bin/entrypoint.prod.sh
 RUN chmod +x /usr/local/bin/entrypoint.prod.sh
 
+# Render lance le conteneur en non-root avec no-new-privileges : la file-capability du binaire
+# FrankenPHP déclenche un EPERM à l'exec. On écoute sur $PORT (>1024), la capability est inutile.
+RUN setcap -r /usr/local/bin/frankenphp
+
 ENTRYPOINT ["entrypoint.prod.sh"]
