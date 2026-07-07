@@ -28,6 +28,9 @@ services:
         fromDatabase:
           name: taskflow-db
           property: connectionString
+      # La base Render est en Postgres 18 ; l'URL auto-injectée ne porte pas serverVersion.
+      - key: DATABASE_SERVER_VERSION
+        value: "18"
       - key: MESSENGER_TRANSPORT_DSN
         value: doctrine://default
       # Pas de SMTP en prod : les e-mails sont ignorés (les notifs in-app fonctionnent).
