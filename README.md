@@ -1,11 +1,18 @@
 # TaskFlow
 
 MVP de gestion de projet collaborative (type Jira / Trello) — **Symfony 8** (PHP 8.4), **Twig**,
-**Doctrine** (PostgreSQL), **Docker**. Projet de fin de cycle ESGI 4IW2 (développeur solo).
+**Doctrine** (PostgreSQL), **Docker**. Projet de fin de cycle ESGI 4IW2
 
 - **Application en ligne :** `https://<votre-app>.onrender.com` *(remplacer par l'URL Render)*
 - **Schéma de la base de données :** [`docs/database-schema.md`](docs/database-schema.md) (MCD + UML, rendu Mermaid)
 - **Support de présentation :** `../presentation.md`
+
+
+# contributeur
+
+ABBAS Mohed
+SAN Wilson
+Ilia Choumitzky
 
 ## Fonctionnalités
 
