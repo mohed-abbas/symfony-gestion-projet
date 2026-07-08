@@ -16,7 +16,6 @@ ENV APP_ENV=prod \
 COPY composer.json composer.lock symfony.lock ./
 RUN composer install --no-dev --no-scripts --prefer-dist --no-progress --no-interaction
 
-# 2) Code applicatif.
 COPY . .
 
 # 3) Autoloader optimisé + cache prod + assets compilés (AssetMapper).

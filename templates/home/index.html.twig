@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="card wide">
-        <h1>Bienvenue sur TaskFlow</h1>
+        <h1>Bienvenue sur {{ title }}</h1>
         <p class="muted">Connecté en tant que <strong>{{ app.user.fullName ?: app.user.userIdentifier }}</strong>.</p>
         <ul class="roles">
             {% for role in app.user.roles %}
